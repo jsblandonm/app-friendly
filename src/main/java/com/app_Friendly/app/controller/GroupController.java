@@ -2,6 +2,7 @@ package com.app_Friendly.app.controller;
 
 import com.app_Friendly.app.model.Group;
 import com.app_Friendly.app.model.People;
+import com.app_Friendly.app.repository.PeopleRepository;
 import com.app_Friendly.app.service.GroupService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,15 +12,19 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-
 @RequestMapping("api/groups")
 public class GroupController {
     @Autowired
     private GroupService groupService;
 
+    @Autowired
+    private PeopleRepository peopleRepository;
+
     @PostMapping
-    public Group createGroup(@RequestBody Group group){
-        return groupService.createGroup(group.getName());
+    public Group createGroup(@RequestBody Group group, @RequestParam String ownerId){
+        People owner = peopleRepository.findById(ownerId)
+                .orElseThrow(() -> new IllegalArgumentException("El owner no existe"));
+        return groupService.createGroup(group.getName(), owner);
     }
     @PostMapping("/{groupId}/members")
     public Group addMember(@PathVariable String groupId, @RequestBody People people) {

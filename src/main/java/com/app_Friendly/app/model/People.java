@@ -22,6 +22,8 @@ public class People {
     private String name;
     private String email;
     private String password;
+    private String imageUrl;
+
     private Map<String, Double> contributionByGroup = new HashMap<>();
 
     public People(String name, String email, String password) {
@@ -46,6 +48,4 @@ public class People {
     public Map<String, Double> getGroupContributions(){
         return contributionByGroup;
     }
-
-
 }

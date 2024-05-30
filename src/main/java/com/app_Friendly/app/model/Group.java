@@ -23,10 +23,14 @@ public class Group {
     private String name;
 
     @DBRef
+    private People owner;
+
+    @DBRef
     private List<People> members = new ArrayList<>();
 
-    public Group(String name) {
+    public Group(String name, People owner) {
         this.name = name;
+        this.owner = owner;
         this.members = new ArrayList<>();
     }
 
@@ -49,6 +53,8 @@ public class Group {
         for (People member : members){
             double currentContribution = member.getContribution(this);
             double diference = currentContribution - average;
+            // Implementar lógica para ajustar las contribuciones
+            // Puede implicar crear "Contribuciones" negativas o positivas para balancear
         }
     }
 }

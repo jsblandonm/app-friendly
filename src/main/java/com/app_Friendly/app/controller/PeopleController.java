@@ -4,6 +4,7 @@ import com.app_Friendly.app.model.People;
 import com.app_Friendly.app.service.PeopleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -20,7 +21,7 @@ public class PeopleController {
 
     @PutMapping("/{id}")
     public People updatePeople(@PathVariable String id, @RequestBody People people) {
-        return peopleService.updatePeople(id, people.getName(), people.getEmail(), people.getPassword());
+        return peopleService.updatePeople(id, people.getName(), people.getEmail(), people.getPassword(), people.getImageUrl());
     }
 
     @PostMapping("/login")
@@ -31,6 +32,12 @@ public class PeopleController {
     @GetMapping
     public List<People> getPeoples() {
         return peopleService.getPeoples();
+    }
+
+    @PostMapping("/{id}/upload-iamge")
+    public People uploadIamge(@PathVariable String id, @RequestParam("file") MultipartFile file){
+        String imageUrl = peopleService.uploadImage(file);
+        return peopleService.updatePeople(id,null,null,null,imageUrl);
     }
 }
 

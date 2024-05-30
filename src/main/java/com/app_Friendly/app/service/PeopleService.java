@@ -4,8 +4,10 @@ import com.app_Friendly.app.model.Group;
 import com.app_Friendly.app.model.People;
 import com.app_Friendly.app.repository.GroupRepository;
 import com.app_Friendly.app.repository.PeopleRepository;
+import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -14,7 +16,6 @@ public class PeopleService {
 
     @Autowired
     private PeopleRepository peopleRepository;
-
     @Autowired
     private GroupRepository groupRepository;
 
@@ -39,14 +40,9 @@ public class PeopleService {
         People people= new People(name,email, password);
         return peopleRepository.save(people);
 
-        /*people = peopleRepository.save(people);
-
-        Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new IllegalArgumentException("El grupo no existe"));
-        people.addContribution(group,amount); */
     }
 
-    public People updatePeople(String id, String name, String email, String password) {
+    public People updatePeople(String id, String name, String email, String password, String imageUrl) {
         People people = peopleRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("La persona no existe"));
 
@@ -63,6 +59,9 @@ public class PeopleService {
         if (password != null && !password.isEmpty()) {
             people.setPassword(password);
         }
+        if (imageUrl != null && !imageUrl.isEmpty()){
+            people.setImageUrl(imageUrl);
+        }
 
         return peopleRepository.save(people);
     }
@@ -76,6 +75,13 @@ public class PeopleService {
     }
     public List<People> getPeoples(){
         return peopleRepository.findAll();
+    }
+
+    public String uploadImage(MultipartFile file) {
+        // Aquí puedes implementar la lógica para subir la imagen a un servicio de almacenamiento y retornar la URL
+        // Por ejemplo, usando Amazon S3, Cloudinary, etc.
+        // Retornaremos una URL ficticia para ilustrar
+        return "https://example.com/images/" + file.getOriginalFilename();
     }
 
 }

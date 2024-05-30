@@ -2,6 +2,7 @@ package com.app_Friendly.app.service;
 
 import com.app_Friendly.app.model.Group;
 import com.app_Friendly.app.model.People;
+import com.app_Friendly.app.repository.ContributionRepository;
 import com.app_Friendly.app.repository.GroupRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,19 +13,21 @@ import java.util.List;
 public class GroupService {
     @Autowired
     private GroupRepository groupRepository;
-    public Group createGroup(String name){
 
+    @Autowired
+    private ContributionRepository contributionRepository;
+
+    public Group createGroup(String name, People owner){
         //Validar el nombre del grupo
         if (name == null || name.isEmpty()){
             throw new IllegalArgumentException("El nombre del grupo esta vacio");
         }
-
         // Verificar si el grupo ya existe
         if (groupRepository.findByName(name) != null){
             throw new IllegalArgumentException("el grupo ya existe");
         }
 
-        Group group = new Group(name);
+        Group group = new Group(name, owner);
         return groupRepository.save(group);
     }
 
@@ -76,10 +79,10 @@ public class GroupService {
             double diference = currentContribution - average;
             if (diference > 0 ){
                 throw new IllegalArgumentException("El  miembro a aportado mas de lo necesario");
-                //implementar logica para darle al miembro el excedente
+                // Implementar lógica para solicitar el saldo pendient
             } else if (diference < 0) {
                 throw new IllegalArgumentException("El  miembro a aportado menos de lo necesario");
-                //implementar logica para pedirle al miembro el aporte
+                // Implementar lógica para solicitar el saldo pendient
             }
         }
     }
