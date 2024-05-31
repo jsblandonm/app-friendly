@@ -15,10 +15,14 @@ public class ContributionService {
     @Autowired
     private ContributionRepository contributionRepository;
 
-    public Contribution createContribution(People people, Group group, double amount){
-        Contribution contribution = new Contribution(people,group, amount);
-        return contributionRepository.save(contribution);
+    public Contribution createContribution(People people, Group group, double amount) {
+        Contribution contribution = new Contribution(people, group, amount);
+        contribution = contributionRepository.save(contribution);
+        people.addContribution(group, amount);
+        return contribution;
     }
+
+
 
     public List<Contribution> getContributions(){
         return contributionRepository.findAll();

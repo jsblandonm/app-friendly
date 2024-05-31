@@ -1,5 +1,6 @@
 package com.app_Friendly.app.controller;
 
+import com.app_Friendly.app.DTO.PeopleDTO;
 import com.app_Friendly.app.model.People;
 import com.app_Friendly.app.service.PeopleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,17 +16,17 @@ public class PeopleController {
     private PeopleService peopleService;
 
     @PostMapping("/register")
-    public People registerPeople(@RequestBody People people) {
-        return peopleService.registerPeople(people.getName(), people.getEmail(), people.getPassword());
+    public People registerPeople(@RequestBody PeopleDTO peopleDTO) {
+        return peopleService.registerPeople(peopleDTO.getName(), peopleDTO.getEmail(), peopleDTO.getPassword());
     }
 
     @PutMapping("/{id}")
-    public People updatePeople(@PathVariable String id, @RequestBody People people) {
-        return peopleService.updatePeople(id, people.getName(), people.getEmail(), people.getPassword(), people.getImageUrl());
+    public People updatePeople(@PathVariable String id, @RequestBody PeopleDTO peopleDTO) {
+        return peopleService.updatePeople(id, peopleDTO.getName(), peopleDTO.getEmail(), peopleDTO.getPassword(), peopleDTO.getImageUrl());
     }
 
     @PostMapping("/login")
-    public People login(@RequestBody People loginRequest) {
+    public People login(@RequestBody PeopleDTO loginRequest) {
         return peopleService.login(loginRequest.getEmail(), loginRequest.getPassword());
     }
 
@@ -34,8 +35,8 @@ public class PeopleController {
         return peopleService.getPeoples();
     }
 
-    @PostMapping("/{id}/upload-iamge")
-    public People uploadIamge(@PathVariable String id, @RequestParam("file") MultipartFile file){
+    @PostMapping("/{id}/upload-image")
+    public People uploadImage(@PathVariable String id, @RequestParam("file") MultipartFile file){
         String imageUrl = peopleService.uploadImage(file);
         return peopleService.updatePeople(id,null,null,null,imageUrl);
     }

@@ -1,5 +1,6 @@
 package com.app_Friendly.app.service;
 
+import com.app_Friendly.app.model.Contribution;
 import com.app_Friendly.app.model.Group;
 import com.app_Friendly.app.model.People;
 import com.app_Friendly.app.repository.ContributionRepository;
@@ -17,14 +18,18 @@ public class GroupService {
     @Autowired
     private ContributionRepository contributionRepository;
 
+    @Autowired
+    private ContributionService contributionService;
+
     public Group createGroup(String name, People owner){
-        //Validar el nombre del grupo
+        // Validar el nombre del grupo
         if (name == null || name.isEmpty()){
-            throw new IllegalArgumentException("El nombre del grupo esta vacio");
+            throw new IllegalArgumentException("El nombre del grupo está vacío");
         }
+
         // Verificar si el grupo ya existe
         if (groupRepository.findByName(name) != null){
-            throw new IllegalArgumentException("el grupo ya existe");
+            throw new IllegalArgumentException("El grupo ya existe");
         }
 
         Group group = new Group(name, owner);
@@ -68,26 +73,28 @@ public class GroupService {
         groupRepository.save(group);
     }
 
-    //Logica para ajustar las contribuciones
+    // Logica para ajustar las contribuciones
     public void adjustContributions(String groupId){
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new IllegalArgumentException("El grupo no existe"));
 
-        double  average = group.calculateAverageContribution();
+        double average = group.calculateAverageContribution();
         for (People member : group.getMembers()){
             double currentContribution = member.getContribution(group);
-            double diference = currentContribution - average;
-            if (diference > 0 ){
-                throw new IllegalArgumentException("El  miembro a aportado mas de lo necesario");
-                // Implementar lógica para solicitar el saldo pendient
-            } else if (diference < 0) {
-                throw new IllegalArgumentException("El  miembro a aportado menos de lo necesario");
-                // Implementar lógica para solicitar el saldo pendient
+            double difference = currentContribution - average;
+            if (difference != 0 ){
+                Contribution contribution = contributionService.createContribution(member, group, -difference);
+                System.out.println("Se creó una contribución de " + (-difference) + " para " + member.getName() + " en el grupo " + group.getName());
             }
         }
     }
 
     public List<Group> getGroups(){
         return groupRepository.findAll();
+    }
+
+    public Group findById(String id) {
+        return groupRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("El grupo no existe"));
     }
 }

@@ -1,9 +1,12 @@
 package com.app_Friendly.app.controller;
 
+import com.app_Friendly.app.DTO.GroupDTO;
+import com.app_Friendly.app.DTO.PeopleDTO;
 import com.app_Friendly.app.model.Group;
 import com.app_Friendly.app.model.People;
 import com.app_Friendly.app.repository.PeopleRepository;
 import com.app_Friendly.app.service.GroupService;
+import com.app_Friendly.app.service.PeopleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -12,32 +15,34 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/groups")
+@RequestMapping("/api/groups")
 public class GroupController {
     @Autowired
     private GroupService groupService;
 
     @Autowired
-    private PeopleRepository peopleRepository;
+    private PeopleService peopleService;
 
     @PostMapping
-    public Group createGroup(@RequestBody Group group, @RequestParam String ownerId){
-        People owner = peopleRepository.findById(ownerId)
-                .orElseThrow(() -> new IllegalArgumentException("El owner no existe"));
-        return groupService.createGroup(group.getName(), owner);
+    public Group createGroup(@RequestBody GroupDTO groupDTO) {
+        People owner = peopleService.findById(groupDTO.getOwnerId());
+        return groupService.createGroup(groupDTO.getName(), owner);
     }
+
     @PostMapping("/{groupId}/members")
-    public Group addMember(@PathVariable String groupId, @RequestBody People people) {
+    public Group addMember(@PathVariable String groupId, @RequestParam String peopleId) {
+        People people = peopleService.findById(peopleId);
         return groupService.addMember(groupId, people);
     }
 
     @PutMapping("/{id}")
-    public Group updateGroup(@PathVariable String id, @RequestBody Group group) {
-        return groupService.updateGroup(id, group.getName());
+    public Group updateGroup(@PathVariable String id, @RequestBody GroupDTO groupDTO) {
+        return groupService.updateGroup(id, groupDTO.getName());
     }
 
     @DeleteMapping("/{groupId}/members")
-    public void removeMember(@PathVariable String groupId, @RequestBody People people) {
+    public void removeMember(@PathVariable String groupId, @RequestParam String peopleId) {
+        People people = peopleService.findById(peopleId);
         groupService.removeMember(groupId, people);
     }
 

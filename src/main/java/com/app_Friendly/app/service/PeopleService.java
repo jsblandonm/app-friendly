@@ -66,6 +66,11 @@ public class PeopleService {
         return peopleRepository.save(people);
     }
 
+    public People findById(String id){
+        return peopleRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("La persona no existe"));
+    }
+
     public People login(String email, String password){
         People people = peopleRepository.findByEmail(email);
         if (people != null && people.authenticate(email,password)){
