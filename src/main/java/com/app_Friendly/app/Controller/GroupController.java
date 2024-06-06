@@ -1,15 +1,12 @@
-package com.app_Friendly.app.controller;
+package com.app_Friendly.app.Controller;
 
 import com.app_Friendly.app.DTO.GroupDTO;
-import com.app_Friendly.app.DTO.PeopleDTO;
 import com.app_Friendly.app.model.Group;
 import com.app_Friendly.app.model.People;
-import com.app_Friendly.app.repository.PeopleRepository;
 import com.app_Friendly.app.service.GroupService;
 import com.app_Friendly.app.service.PeopleService;
-import lombok.RequiredArgsConstructor;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,7 +21,7 @@ public class GroupController {
     private PeopleService peopleService;
 
     @PostMapping
-    public Group createGroup(@RequestBody GroupDTO groupDTO) {
+    public Group createGroup(@RequestBody @Valid GroupDTO groupDTO) {
         People owner = peopleService.findById(groupDTO.getOwnerId());
         return groupService.createGroup(groupDTO.getName(), owner);
     }

@@ -1,8 +1,9 @@
-package com.app_Friendly.app.controller;
+package com.app_Friendly.app.Controller;
 
 import com.app_Friendly.app.DTO.PeopleDTO;
 import com.app_Friendly.app.model.People;
 import com.app_Friendly.app.service.PeopleService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,7 +17,7 @@ public class PeopleController {
     private PeopleService peopleService;
 
     @PostMapping("/register")
-    public People registerPeople(@RequestBody PeopleDTO peopleDTO) {
+    public People registerPeople(@RequestBody @Valid PeopleDTO peopleDTO) {
         return peopleService.registerPeople(peopleDTO.getName(), peopleDTO.getEmail(), peopleDTO.getPassword());
     }
 

@@ -1,11 +1,10 @@
 package com.app_Friendly.app.service;
 
-import com.app_Friendly.app.model.Group;
 import com.app_Friendly.app.model.People;
 import com.app_Friendly.app.repository.GroupRepository;
 import com.app_Friendly.app.repository.PeopleRepository;
-import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,9 +14,18 @@ import java.util.List;
 public class PeopleService {
 
     @Autowired
-    private PeopleRepository peopleRepository;
+    private final PeopleRepository peopleRepository;
+
     @Autowired
     private GroupRepository groupRepository;
+
+    @Autowired
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    public PeopleService(PeopleRepository peopleRepository,BCryptPasswordEncoder bCryptPasswordEncoder){
+        this.peopleRepository = peopleRepository;
+        this.bCryptPasswordEncoder=bCryptPasswordEncoder;
+    }
 
     public People registerPeople(String name, String email, String password){
 
@@ -37,7 +45,9 @@ public class PeopleService {
             throw  new IllegalArgumentException("El correo electronico ya esta registrado");
         }
 
-        People people= new People(name,email, password);
+        //Hash la contraseña bcrypt
+        String hashedPassword = bCryptPasswordEncoder.encode(password);
+        People people= new People(name,email, hashedPassword);
         return peopleRepository.save(people);
 
     }
@@ -83,9 +93,6 @@ public class PeopleService {
     }
 
     public String uploadImage(MultipartFile file) {
-        // Aquí puedes implementar la lógica para subir la imagen a un servicio de almacenamiento y retornar la URL
-        // Por ejemplo, usando Amazon S3, Cloudinary, etc.
-        // Retornaremos una URL ficticia para ilustrar
         return "https://example.com/images/" + file.getOriginalFilename();
     }
 

@@ -33,28 +33,4 @@ public class Group {
         this.owner = owner;
         this.members = new ArrayList<>();
     }
-
-    public void addMember(People people){
-        members.add(people);
-    }
-
-    public double calculateTotalContributions(){
-        return members.stream()
-                .mapToDouble(member -> member.getContribution(this))
-                .sum();
-    }
-
-    public double calculateAverageContribution(){
-        return calculateTotalContributions() / members.size();
-    }
-
-    public void adjustContributions(){
-        double average = calculateAverageContribution();
-        for (People member : members){
-            double currentContribution = member.getContribution(this);
-            double diference = currentContribution - average;
-            // Implementar lógica para ajustar las contribuciones
-            // Puede implicar crear "Contribuciones" negativas o positivas para balancear
-        }
-    }
 }

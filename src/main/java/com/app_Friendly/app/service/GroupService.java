@@ -12,14 +12,21 @@ import java.util.List;
 
 @Service
 public class GroupService {
-    @Autowired
-    private GroupRepository groupRepository;
 
-    @Autowired
-    private ContributionRepository contributionRepository;
+    private final GroupRepository groupRepository;
+    private final ContributionRepository contributionRepository;
+    private final ContributionService contributionService;
+    private final PeopleService peopleService;
 
-    @Autowired
-    private ContributionService contributionService;
+    public GroupService(GroupRepository groupRepository,
+                        ContributionRepository contributionRepository,
+                        ContributionService contributionService,
+                        PeopleService peopleService) {
+        this.groupRepository = groupRepository;
+        this.contributionRepository = contributionRepository;
+        this.contributionService = contributionService;
+        this.peopleService = peopleService;
+    }
 
     public Group createGroup(String name, People owner){
         // Validar el nombre del grupo
@@ -39,10 +46,11 @@ public class GroupService {
     public Group addMember(String groupId, People people){
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new IllegalArgumentException("El Grupo no existe"));
+
         if (group.getMembers().contains(people)){
             throw new IllegalArgumentException("La persona ya es miembro del grupo");
         }
-        group.addMember(people);
+        group.getMembers().add(people);
         return groupRepository.save(group);
     }
 
@@ -61,6 +69,11 @@ public class GroupService {
         return groupRepository.save(group);
     }
 
+
+//    public void removeMember(String groupId, People people) {
+//        Group group = groupRepository.findById(groupId)
+//                .orElseThrow(() -> new IllegalArgumentException("El grupo no existe"));
+//    }
     public void removeMember(String groupId, People people) {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new IllegalArgumentException("El grupo no existe"));
@@ -74,11 +87,26 @@ public class GroupService {
     }
 
     // Logica para ajustar las contribuciones
+
+    public double calculateTotalContributions(String groupId) {
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new IllegalArgumentException("El Grupo no existe"));
+        return group.getMembers().stream()
+                .mapToDouble(member -> member.getContribution(group))
+                .sum();
+    }
+
+    public double calculateAverageContribution(String groupId){
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new IllegalArgumentException("El Grupo no existe"));
+        return calculateTotalContributions(groupId) / group.getMembers().size();
+    }
+
+
     public void adjustContributions(String groupId){
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new IllegalArgumentException("El grupo no existe"));
-
-        double average = group.calculateAverageContribution();
+        double average = calculateAverageContribution(groupId);
         for (People member : group.getMembers()){
             double currentContribution = member.getContribution(group);
             double difference = currentContribution - average;
@@ -98,3 +126,4 @@ public class GroupService {
                 .orElseThrow(() -> new IllegalArgumentException("El grupo no existe"));
     }
 }
+
