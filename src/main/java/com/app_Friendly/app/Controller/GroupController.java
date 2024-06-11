@@ -3,6 +3,7 @@ package com.app_Friendly.app.Controller;
 import com.app_Friendly.app.DTO.GroupDTO;
 import com.app_Friendly.app.model.Group;
 import com.app_Friendly.app.model.People;
+import com.app_Friendly.app.service.ContributionAdjustmentService;
 import com.app_Friendly.app.service.GroupService;
 import com.app_Friendly.app.service.PeopleService;
 import jakarta.validation.Valid;
@@ -19,6 +20,9 @@ public class GroupController {
 
     @Autowired
     private PeopleService peopleService;
+
+    @Autowired
+    private ContributionAdjustmentService contributionAdjustmentService;
 
     @PostMapping
     public Group createGroup(@RequestBody @Valid GroupDTO groupDTO) {
@@ -50,6 +54,6 @@ public class GroupController {
 
     @PostMapping("/{groupId}/adjust-contributions")
     public void adjustContributions(@PathVariable String groupId) {
-        groupService.adjustContributions(groupId);
+        contributionAdjustmentService.adjustContributions(groupId);
     }
 }

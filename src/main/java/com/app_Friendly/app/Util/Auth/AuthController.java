@@ -3,6 +3,7 @@ package com.app_Friendly.app.Util.Auth;
 
 import com.app_Friendly.app.DTO.LoginDto;
 import com.app_Friendly.app.DTO.PeopleDTO;
+import com.app_Friendly.app.Exceptions.ValidationExceptionHandler;
 import com.app_Friendly.app.Util.JWT.JwtResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,13 +18,14 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
-    @PostMapping("/register")
+
+    @PostMapping(value = "/register")
     public ResponseEntity<String> register(@RequestBody PeopleDTO peopleDTO) {
         authService.register(peopleDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body("Usuario registrado con éxito");
     }
 
-    @PostMapping("/login")
+    @PostMapping(value = "/login")
     public ResponseEntity<JwtResponse> login(@RequestBody @Valid LoginDto loginDto) {
         String token = authService.login(loginDto);
         return ResponseEntity.ok(new JwtResponse(token));

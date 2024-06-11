@@ -21,6 +21,7 @@ public class Group {
     @Id
     private String id;
     private String name;
+    private double totalAmount;
 
     @DBRef
     private People owner;
@@ -32,5 +33,6 @@ public class Group {
         this.name = name;
         this.owner = owner;
         this.members = new ArrayList<>();
+
     }
 }

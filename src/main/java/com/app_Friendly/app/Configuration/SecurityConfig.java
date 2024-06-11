@@ -45,6 +45,7 @@ public class SecurityConfig {
                                 "/api-docs/**",
                                 "/api/auth/**"
                         ).permitAll()
+                        .requestMatchers("/api/people/**").authenticated()// Proteger todas las rutas de /api/people/*
                         .anyRequest().authenticated())
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 

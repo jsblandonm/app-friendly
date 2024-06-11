@@ -6,6 +6,9 @@ import com.app_Friendly.app.DTO.PeopleDTO;
 import com.app_Friendly.app.model.People;
 import com.app_Friendly.app.repository.PeopleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -34,7 +37,7 @@ public class AuthService {
 
 
     public void register(PeopleDTO peopleDTO){
-        People people = new People(peopleDTO.getName(), peopleDTO.getEmail(), passwordEncoder.encode(peopleDTO.getPassword()));
+        People people = new People(peopleDTO.getName(), peopleDTO.getEmail(), peopleDTO.getBankAccount(), passwordEncoder.encode(peopleDTO.getPassword()));
         peopleRepository.save(people);
     }
 
@@ -53,5 +56,13 @@ public class AuthService {
             return jwtUtil.generateToken(username);
         }
         throw new RuntimeException("Token inválido");
+    }
+
+    public String getCurrentUserEmail() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
+            return ((UserDetails) authentication.getPrincipal()).getUsername();
+        }
+        return null;
     }
 }

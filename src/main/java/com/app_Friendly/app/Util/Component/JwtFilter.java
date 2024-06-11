@@ -1,5 +1,6 @@
 package com.app_Friendly.app.Util.Component;
 
+import com.app_Friendly.app.service.JwtUserDetailsService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -32,15 +33,19 @@ public class JwtFilter extends OncePerRequestFilter {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Autowired
+    private JwtUserDetailsService jwtUserDetailsService;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
         String token = getJwtFromRequest(request);
 
-        if (StringUtils.hasText(token) && validateToken(token)) {
-            String username = getUsernameFromJWT(token);
-            UserDetails userDetails = new User(username, "", new ArrayList<>()); // Crea un objeto UserDetails temporal
+        if (StringUtils.hasText(token) && jwtUtil.validateToken(token)) {
+            String username = jwtUtil.extractUsername(token);
+            UserDetails userDetails = jwtUserDetailsService.loadUserByUsername(username);
+            //UserDetails userDetails = new User(username, "", new ArrayList<>()); // Crea un objeto UserDetails temporal
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -64,6 +69,7 @@ public class JwtFilter extends OncePerRequestFilter {
             return true;
         } catch (Exception ex) {
             // Invalid JWT token
+            System.out.println("Invalid JWT token: " + ex.getMessage());
         }
         return false;
     }

@@ -1,5 +1,6 @@
 package com.app_Friendly.app.service;
 
+import com.app_Friendly.app.Util.Auth.AuthService;
 import com.app_Friendly.app.model.Contribution;
 import com.app_Friendly.app.model.Group;
 import com.app_Friendly.app.model.People;
@@ -17,15 +18,18 @@ public class GroupService {
     private final ContributionRepository contributionRepository;
     private final ContributionService contributionService;
     private final PeopleService peopleService;
+    private final ContributionAdjustmentService contributionAdjustmentService;
 
     public GroupService(GroupRepository groupRepository,
                         ContributionRepository contributionRepository,
                         ContributionService contributionService,
-                        PeopleService peopleService) {
+                        PeopleService peopleService,
+                        ContributionAdjustmentService contributionAdjustmentService) {
         this.groupRepository = groupRepository;
         this.contributionRepository = contributionRepository;
         this.contributionService = contributionService;
         this.peopleService = peopleService;
+        this.contributionAdjustmentService = contributionAdjustmentService;
     }
 
     public Group createGroup(String name, People owner){
@@ -47,12 +51,16 @@ public class GroupService {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new IllegalArgumentException("El Grupo no existe"));
 
+        //Verificar si el usuario Autenticado es el propietario del grupo
+        //verifyGroupOwner(group,currentUser);
+
         if (group.getMembers().contains(people)){
             throw new IllegalArgumentException("La persona ya es miembro del grupo");
         }
         group.getMembers().add(people);
         return groupRepository.save(group);
     }
+
 
     public Group updateGroup(String id, String name) {
         Group group = groupRepository.findById(id)
@@ -69,14 +77,12 @@ public class GroupService {
         return groupRepository.save(group);
     }
 
-
-//    public void removeMember(String groupId, People people) {
-//        Group group = groupRepository.findById(groupId)
-//                .orElseThrow(() -> new IllegalArgumentException("El grupo no existe"));
-//    }
     public void removeMember(String groupId, People people) {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new IllegalArgumentException("El grupo no existe"));
+
+        // Verificar si el usuario autenticado es el propietario del grupo
+       // verifyGroupOwner(group,currentUser);
 
         if (!group.getMembers().contains(people)) {
             throw new IllegalArgumentException("La persona no es miembro del grupo");
@@ -96,26 +102,12 @@ public class GroupService {
                 .sum();
     }
 
-    public double calculateAverageContribution(String groupId){
+    public double calculateAverageContribution(String groupId) {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new IllegalArgumentException("El Grupo no existe"));
         return calculateTotalContributions(groupId) / group.getMembers().size();
     }
 
-
-    public void adjustContributions(String groupId){
-        Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new IllegalArgumentException("El grupo no existe"));
-        double average = calculateAverageContribution(groupId);
-        for (People member : group.getMembers()){
-            double currentContribution = member.getContribution(group);
-            double difference = currentContribution - average;
-            if (difference != 0 ){
-                Contribution contribution = contributionService.createContribution(member, group, -difference);
-                System.out.println("Se creó una contribución de " + (-difference) + " para " + member.getName() + " en el grupo " + group.getName());
-            }
-        }
-    }
 
     public List<Group> getGroups(){
         return groupRepository.findAll();
@@ -125,5 +117,11 @@ public class GroupService {
         return groupRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("El grupo no existe"));
     }
+
+//    private void verifyGroupOwner(Group group, People currentUser) {
+//        if (!group.getOwner().getEmail().equals(currentUser.getEmail())) {
+//            throw new IllegalArgumentException("Solo el propietario del grupo puede realizar esta acción");
+//        }
+//    }
 }
 

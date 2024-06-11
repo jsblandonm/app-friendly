@@ -14,6 +14,9 @@ public class PeopleDTO {
     @Email(message = "El formato del correo electrónico es inválido")
     private String email;
 
+
+    private Long bankAccount;
+
     @NotBlank(message = "La contraseña no puede estar vacía")
     @Size(min = 6, message = "La contraseña debe tener al menos 6 caracteres")
     private String password;

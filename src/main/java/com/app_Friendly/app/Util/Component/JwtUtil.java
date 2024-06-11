@@ -23,6 +23,10 @@ public class JwtUtil {
     @Value("${JWT_SECRET}")
     private String secret;
 
+    private Key getKey(){
+        return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+    }
+
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
@@ -37,10 +41,10 @@ public class JwtUtil {
     }
 
     private Claims extractAllClaims(String token) {
-        Key key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+//        Key key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         return Jwts
                 .parser()
-                .setSigningKey(key)
+                .setSigningKey(getKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
@@ -62,13 +66,20 @@ public class JwtUtil {
                 .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 30)) // 30 minutos
-                .signWith(SignatureAlgorithm.HS256, secret)
+                .signWith(getKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
     public Boolean validateToken(String token) {
-        String username = extractUsername(token);
-        UserDetails userDetails = new User(username, "", new ArrayList<>());
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        try {
+            Jwts.parser().setSigningKey(getKey()).build().parseClaimsJws(token);
+            return !isTokenExpired(token);
+        } catch (Exception ex){
+            System.out.println("Invalid JWT token: " + ex.getMessage());
+            return false;
+        }
+//        String username = extractUsername(token);
+//        UserDetails userDetails = new User(username, "", new ArrayList<>());
+//        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 }
